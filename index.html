@@ -1,0 +1,316 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokémon Card Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #ff1c1c;
+      --yellow: #ffcb05;
+      --blue: #3b4cca;
+      --gray: #f5f5f5;
+      --white: #fff;
+      --black: #000;
+    }
+    * {
+      box-sizing: border-box;
+      font-family: 'Press Start 2P', monospace;
+    }
+    body {
+      margin: 0;
+      background: var(--gray);
+      color: var(--black);
+    }
+    header {
+      background: var(--yellow);
+      color: var(--blue);
+      text-align: center;
+      padding: 1rem;
+      border-bottom: 5px solid var(--blue);
+      text-shadow: 2px 2px var(--red);
+    }
+    nav {
+      background: var(--red);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1rem;
+    }
+    nav a {
+      background: var(--yellow);
+      color: var(--blue);
+      padding: .5rem 1rem;
+      text-decoration: none;
+      border: 3px solid var(--blue);
+      border-radius: 10px;
+      box-shadow: 3px 3px var(--black);
+      font-size: .7rem;
+      transition: .25s;
+    }
+    nav a:hover {
+      filter: brightness(.9);
+      transform: translateY(-2px);
+    }
+    nav a.active {
+      background: var(--blue);
+      color: var(--yellow);
+    }
+    .container {
+      max-width: 960px;
+      margin: 1.5rem auto;
+      padding: 1.5rem;
+      background: var(--white);
+      border-radius: 18px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, .25);
+    }
+    .search-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    input[type=text] {
+      flex: 1 1 280px;
+      padding: .7rem;
+      border: 3px solid var(--blue);
+      border-radius: 10px;
+      font-size: .7rem;
+    }
+    button {
+      cursor: pointer;
+      font-size: .7rem;
+      font-weight: 700;
+      border-radius: 10px;
+      border: 3px solid var(--black);
+      padding: .7rem 1rem;
+      transition: .2s;
+      line-height: 1;
+    }
+    .btn-search, .btn-more, .btn-action {
+      background: var(--blue);
+      color: var(--yellow);
+    }
+    #results {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 1rem;
+    }
+    .card-thumb {
+      background: var(--white);
+      border: 4px solid var(--blue);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 3px 3px var(--black);
+      transition: .2s;
+      cursor: pointer;
+    }
+    .card-thumb:hover {
+      transform: scale(1.05);
+    }
+    .card-thumb img {
+      width: 100%;
+    }
+    #card-details {
+      display: none;
+      margin-top: 1.5rem;
+      padding: 1.2rem;
+      text-align: center;
+      background: var(--yellow);
+      border: 5px dashed var(--blue);
+      border-radius: 18px;
+    }
+    #card-details img {
+      width: 210px;
+      margin-bottom: 1rem;
+    }
+    .section {
+      display: none;
+    }
+    h2 {
+      text-align: center;
+      margin: 1rem 0;
+      color: var(--blue);
+      font-size: 1rem;
+    }
+    .entry {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--gray);
+      border-left: 8px solid var(--red);
+      border: 3px solid var(--blue);
+      padding: .5rem .7rem;
+      margin: .4rem 0;
+      border-radius: 12px;
+      font-size: .6rem;
+    }
+    .entry span {
+      cursor: pointer;
+      color: var(--blue);
+    }
+    .entry small {
+      display: block;
+      color: var(--red);
+      font-size: .55rem;
+    }
+    .entry button {
+      background: var(--red);
+      color: #fff;
+      border: none;
+      padding: .2rem .6rem;
+      border-radius: 6px;
+      font-size: .55rem;
+    }
+    footer {
+      background: var(--blue);
+      color: var(--yellow);
+      text-align: center;
+      padding: .8rem;
+      font-size: .6rem;
+    }
+    #msgBox {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: var(--blue);
+      color: var(--yellow);
+      padding: .6rem 1rem;
+      border: 3px solid var(--black);
+      border-radius: 10px;
+      display: none;
+      z-index: 999;
+      font-size: .6rem;
+      box-shadow: 3px 3px var(--black);
+    }
+    .total-price {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: .7rem;
+      color: var(--blue);
+    }
+  </style>
+</head>
+<body>
+  <header>🎴 Pokémon Card Hub</header>
+  <nav>
+    <a href="#" data-target="search" class="active">Search</a>
+    <a href="#" data-target="collection">Collection</a>
+    <a href="#" data-target="wishlist">Wishlist</a>
+  </nav>
+  <div class="container">
+    <section id="search" class="section" style="display:block">
+      <div class="search-bar">
+        <input id="searchInput" placeholder="Type card name…">
+        <button class="btn-search" id="searchBtn">Search</button>
+      </div>
+      <div id="results"></div>
+      <button id="loadMore" class="btn-more" style="display:none">Load more</button>
+      <div id="card-details"></div>
+    </section>
+    <section id="collection" class="section">
+      <h2>📦 My Collection</h2>
+      <div id="colList"></div>
+      <div class="total-price" id="colPrice"></div>
+    </section>
+    <section id="wishlist" class="section">
+      <h2>✨ My Wishlist</h2>
+      <div id="wishList"></div>
+    </section>
+  </div>
+  <footer>Pokémon™ © Nintendo / Creatures / Game Freak</footer>
+  <div id="msgBox"></div>
+  <script>
+    const $ = id => document.getElementById(id);
+    const S = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+    const L = k => JSON.parse(localStorage.getItem(k) || '[]');
+    const toast = msg => { const b = $('msgBox'); b.textContent = msg; b.style.display = 'block'; setTimeout(() => b.style.display = 'none', 2000); };
+    let term = '', page = 1;$('searchBtn').onclick = () => {
+  term = $('searchInput').value.trim(); if (term.length < 2) return;
+  $('results').innerHTML = ''; page = 1; $('card-details').style.display = 'none';
+  fetchPage();
+};
+
+$('loadMore').onclick = () => { page++; fetchPage(); };
+
+async function fetchPage() {
+  const url = `https://api.pokemontcg.io/v2/cards?pageSize=100&page=${page}&q=name:"${term}"`;
+  const data = await fetch(url).then(r => r.json());
+  renderThumbs(data.data || []);
+  $('loadMore').style.display = (data.data || []).length === 100 ? 'block' : 'none';
+}
+
+function renderThumbs(cards) {
+  cards.forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'card-thumb';
+    d.innerHTML = `<img src="${c.images.small}" alt="${c.name}"><div style='text-align:center;font-size:10px;padding:4px;'>${c.name}</div>`;
+    d.onclick = () => showDetail(c);
+    $('results').appendChild(d);
+  });
+}
+
+function showDetail(card) {
+  const det = $('card-details');
+  det.innerHTML = `<h2>${card.name}</h2><img src="${card.images.large}"><p><strong>Set:</strong> ${card.set.name}</p><p><strong>Rarity:</strong> ${card.rarity}</p><p><strong>Price:</strong> $${card.cardmarket?.prices?.averageSellPrice || 'N/A'}</p><div><button class="btn-action add-to-collection" data-id="${card.id}">Add to Collection</button><button class="btn-action add-to-wishlist" data-id="${card.id}">Add to Wishlist</button></div>`;
+  det.style.display = 'block';
+  det.scrollIntoView({ behavior: 'smooth' });
+}
+
+async function save(type, card) {
+  const entry = { id: card.id, name: card.name, price: card.cardmarket?.prices?.averageSellPrice || 'N/A' };
+  const list = L(type);
+  if (list.some(x => x.id === entry.id)) { toast(`❗ Already in ${type}`); return; }
+  list.push(entry); S(type, list); renderList(type); toast(`✅ Added to ${type}`);
+}
+
+function renderList(type) {
+  const box = $(type === 'collection' ? 'colList' : 'wishList');
+  const list = L(type); box.innerHTML = '';
+  if (!list.length) { box.innerHTML = '<p>No cards saved.</p>'; return; }
+  let total = 0;
+  list.forEach(c => {
+    total += parseFloat(c.price) || 0;
+    const row = document.createElement('div'); row.className = 'entry';
+    row.innerHTML = `<span onclick="searchCardById('${c.id}')">${c.name}<small>$${c.price}</small></span><button onclick="remove('${type}','${c.id}')">X</button>`;
+    box.appendChild(row);
+  });
+  if (type === 'collection') $('colPrice').textContent = `Total Value: $${total.toFixed(2)}`;
+}
+
+async function searchCardById(id) {
+  const card = await fetch(`https://api.pokemontcg.io/v2/cards/${id}`).then(r => r.json()).then(j => j.data);
+  showDetail(card);
+}
+
+function remove(type, id) {
+  S(type, L(type).filter(c => c.id !== id));
+  renderList(type);
+}
+
+document.addEventListener('click', async (e) => {
+  if (e.target.classList.contains('add-to-collection') || e.target.classList.contains('add-to-wishlist')) {
+    const id = e.target.getAttribute('data-id');
+    const type = e.target.classList.contains('add-to-collection') ? 'collection' : 'wishlist';
+    const card = await fetch(`https://api.pokemontcg.io/v2/cards/${id}`).then(r => r.json()).then(j => j.data);
+    save(type, card);
+  }
+});
+
+document.querySelectorAll('nav a').forEach(link => {
+  link.onclick = e => {
+    e.preventDefault();
+    document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+    link.classList.add('active');
+    const tgt = link.dataset.target;
+    document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+    $(tgt).style.display = 'block';
+    if (tgt !== 'search') renderList(tgt);
+  };
+});
+
+  </script>
+</body>
+</html>
